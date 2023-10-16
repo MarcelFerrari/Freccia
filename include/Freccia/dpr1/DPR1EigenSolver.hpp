@@ -50,7 +50,7 @@ class DPR1EigenSolver {
 
     private:
         // Solver options
-        DPR1EigenSolverOptions opt;
+        Freccia::Options::DPR1EigenSolverOptions opt;
         
         // Input parameters
         int NS;
