@@ -11,9 +11,14 @@ namespace Freccia::DPRK {
 
     class DPRKEigenSolver {
         public:
-        // Constructor
+        // Constructor for DPRK eigenproblem
         DPRKEigenSolver(const Eigen::Ref<const Eigen::VectorXd>& D, const Eigen::Ref<const Eigen::MatrixXd>& W, const double rho){
             DPRKeigh(D, W, rho);
+        };
+
+        // Constructor for rank K update of previously computed eigensystem
+        DPRKEigenSolver(const Eigen::Ref<const Eigen::VectorXd>& D, const Eigen::Ref<const Eigen::MatrixXd>& W, const double rho, const Eigen::Ref<const Eigen::MatrixXd>& Q0){
+            DPRKeigh(D, W, rho, Q0);
         };
 
         // Getters
@@ -28,6 +33,7 @@ namespace Freccia::DPRK {
 
         // Member functions
         void DPRKeigh(const Eigen::Ref<const Eigen::VectorXd>& D, const Eigen::Ref<const Eigen::MatrixXd>& W, const double rho);
+        void DPRKeigh(const Eigen::Ref<const Eigen::VectorXd>& D, const Eigen::Ref<const Eigen::MatrixXd>& W, const double rho, const Eigen::Ref<const Eigen::MatrixXd>& Q0);
     };
 
 } // End namespace Freccia::DPRK
