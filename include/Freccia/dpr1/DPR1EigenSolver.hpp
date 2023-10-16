@@ -11,6 +11,7 @@
 #include "Freccia/matrix/matrix.hpp"
 #include "Freccia/utils/utils.hpp"
 #include "Freccia/options/options.hpp"
+#include "Freccia/deflation/type1.hpp"
 
 namespace Freccia::DPR1 {
 
@@ -20,12 +21,10 @@ class DPR1EigenSolver {
         DPR1EigenSolver(const Eigen::ArrayXd& D, 
                         const Eigen::ArrayXd& z,
                         double rho = 1.0,
-                        const DPR1EigenSolverOptions& OPTIONS_IN = DPR1EigenSolverOptions()
+                        const Freccia::Options::DPR1EigenSolverOptions& OPTIONS_IN
+                                = Freccia::Options::DPR1EigenSolverOptions()
                         ) 
         :
-        sort(D.size()),
-        type1_deflation(D.size()),
-        type2_deflation(D.size()),
         opt(OPTIONS_IN)
         {
             // Search environment variables if necessary
@@ -39,14 +38,6 @@ class DPR1EigenSolver {
         
         // Return eigenvectors
         const Eigen::MatrixXd& eigenvectors() const { return ev; }
-
-        // Return HH deflation matrix
-        const HHDeflationMatrix & getHH() const { return HH; }
-        
-        // Return type 2 deflation indices
-        const std::vector<unsigned int> & getType2DeflationIndices() { 
-            return type2_deflation.nnzero();
-        }
 
     private:
         // Solver options
@@ -65,12 +56,11 @@ class DPR1EigenSolver {
         DPR1Matrix<__float128> R_ld; // Reduced DPR1 matrix in __float128 datatype
         Eigen::Array<__float128, Eigen::Dynamic, 1> Rzsqr_ld; // __float128 version of Rzsqr
 
-        // Efficient storage of HH vectors for deflation
-        HHDeflationMatrix HH;
+        // Type 1 deflation
+        Freccia::Deflation::Type1<Freccia::Options::DPR1EigenSolverOptions> type1_deflation;
         
         // Permutation and partitions
         Permutation sort;
-        Partition type1_deflation;
         Partition type2_deflation;
         
         // Output parameters
@@ -79,7 +69,6 @@ class DPR1EigenSolver {
 
         // Functions
         void eigh(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, double rho);
-        void type1Deflation();
         void type2Deflation();
         void eigh_k(unsigned int k);
         void recastR();

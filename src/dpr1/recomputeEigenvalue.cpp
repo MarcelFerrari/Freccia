@@ -52,7 +52,7 @@ std::tuple<double, double, double> Freccia::DPR1::DPR1EigenSolver::recomputeEige
     Eigen::ArrayXd zsqr = Rinv.z * Rinv.z;
     
     // Sort the D array decreasingly
-    Permutation p(Rinv.D.size());
+    Permutation p;
     p.argsort(Rinv.D);
     const std::vector<unsigned int> & idx = p.perm();
 
