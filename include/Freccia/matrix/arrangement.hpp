@@ -37,7 +37,7 @@ public:
     Permutation() : ArrangementBase() {}
 
     // Argsort for eigen arrays. Default is decreasing order.
-    void argsort(Eigen::ArrayXd& vec, bool reverse = true){
+    void argsort(const Eigen::ArrayXd& vec, bool reverse = true){
         unsigned int N = vec.size();
 
         // Initialize permutation vector
@@ -90,7 +90,7 @@ public:
 
     // Partition zero and non-zero elements based on threshold value val
     // This maintains the order of the nnzero elements
-    void partition(Eigen::ArrayXd& vec, double val = 1e-15) {
+    void partition(const Eigen::ArrayXd& vec, double val = 1e-15) {
         unsigned int N = vec.size();
 
         // Initialize permutation vector

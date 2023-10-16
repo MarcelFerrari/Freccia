@@ -93,5 +93,5 @@ void Freccia::DPR1::DPR1EigenSolver::eigh_k(unsigned int k){
         }
     }
 
-    ew(type2_deflation.nnzero()[k]) = lambda;
+    ew(type2_deflation.getPartition().nnzero()[k]) = lambda;
 }

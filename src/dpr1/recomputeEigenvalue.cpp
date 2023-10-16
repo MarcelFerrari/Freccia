@@ -109,7 +109,7 @@ double Freccia::DPR1::DPR1EigenSolver::recomputeEigenvalue(unsigned int k){
             return 0.0; 
         } else { // Compute lambda as Rayleigh quotient
             // qT(D + rho * vvT)q = qTDq + rho * (qTz) (zTq)
-            auto view = ev(type2_deflation.nnzero(), type2_deflation.nnzero());
+            auto view = ev(type2_deflation.getPartition().nnzero(), type2_deflation.getPartition().nnzero());
             double qTz = view.col(k).dot(Rinv.z.matrix());
             double qTDq = view.col(k).dot(Rinv.D.matrix().cwiseProduct(view.col(k)));
         

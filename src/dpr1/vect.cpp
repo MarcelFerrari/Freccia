@@ -11,7 +11,7 @@
 void Freccia::DPR1::DPR1EigenSolver::vect(double sigma, double mu, unsigned int k){
     
     // Get view to eigenvectors
-    const std::vector<unsigned int> perm = type2_deflation.nnzero();
+    const std::vector<unsigned int>& perm = type2_deflation.getPartition().nnzero();
     auto view = ev(perm, perm);
     
     // Compute eigenvector

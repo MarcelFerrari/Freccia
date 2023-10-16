@@ -12,6 +12,7 @@
 #include "Freccia/utils/utils.hpp"
 #include "Freccia/options/options.hpp"
 #include "Freccia/deflation/type1.hpp"
+#include "Freccia/deflation/type2.hpp"
 
 namespace Freccia::DPR1 {
 
@@ -56,12 +57,14 @@ class DPR1EigenSolver {
         DPR1Matrix<__float128> R_ld; // Reduced DPR1 matrix in __float128 datatype
         Eigen::Array<__float128, Eigen::Dynamic, 1> Rzsqr_ld; // __float128 version of Rzsqr
 
+        // Sorting
+        Permutation sort;
+
         // Type 1 deflation
         Freccia::Deflation::Type1<Freccia::Options::DPR1EigenSolverOptions> type1_deflation;
         
-        // Permutation and partitions
-        Permutation sort;
-        Partition type2_deflation;
+        // Type 2 deflation
+        Freccia::Deflation::Type2 type2_deflation;
         
         // Output parameters
         Eigen::VectorXd ew; // Eigenwerte
@@ -69,7 +72,6 @@ class DPR1EigenSolver {
 
         // Functions
         void eigh(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, double rho);
-        void type2Deflation();
         void eigh_k(unsigned int k);
         void recastR();
         ArrowheadMatrix<double> shiftInvert(unsigned int i);

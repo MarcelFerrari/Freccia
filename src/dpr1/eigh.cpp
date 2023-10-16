@@ -61,11 +61,11 @@ void Freccia::DPR1::DPR1EigenSolver::eigh(const Eigen::ArrayXd& D, const Eigen::
     type1_deflation.deflate(S.D, S.z, opt);
 
     // Compute type 2 deflation of S
-    type2Deflation();
+    type2_deflation.deflate(S.D, S.z, ew, ev);
     
     // Build reduced DPR1 matrix R
     // Recasting R to __float128 will be done lazily if necessary
-    const std::vector<unsigned int>& nnzero = type2_deflation.nnzero(); // Final non-zero elements indices
+    const std::vector<unsigned int>& nnzero = type2_deflation.getPartition().nnzero(); // Final non-zero elements indices
     NR = nnzero.size();
     
     // Quick return if there is one non-zero element
