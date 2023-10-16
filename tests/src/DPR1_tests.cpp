@@ -19,12 +19,8 @@
 #define FCYN(x) KCYN x RST
 #define FWHT(x) KWHT x RST
 
-#define BOLD(x)
-"\x1B[1m"
-x RST
-#define UNDL(x)
-"\x1B[4m"
-x RST
+#define BOLD(x) "\x1B[1m" x RST
+#define UNDL(x) "\x1B[4m" x RST
 
 #endif /* _COLORS_ */
 
@@ -41,7 +37,7 @@ x RST
 // Include custom libraries
 #include "Freccia/All.hpp"
 
-int test_input(unsigned int t, Eigen::ArrayXd & D, Eigen::ArrayXd & z, double rho = 1.0, Freccia::DPR1::DPR1EigenSolverOptions opt = Freccia::DPR1::DPR1EigenSolverOptions()) {
+int test_input(unsigned int t, Eigen::ArrayXd & D, Eigen::ArrayXd & z, double rho = 1.0, Freccia::Options::DPR1EigenSolverOptions opt = Freccia::Options::DPR1EigenSolverOptions()) {
 
   std::cout << KYEL << "Running DPR1 test " << t << "..." << RST << std::endl;
 
@@ -315,7 +311,7 @@ int test13() {
 
   // This is an ill-conditioned problem 
   // so we need to tweak the tolerances
-  Freccia::DPR1::DPR1EigenSolverOptions opt;
+  Freccia::Options::DPR1EigenSolverOptions opt;
   opt.REL_ZERO_TOL = 1e-7; // Increase relative zero tolerance
 
   return test_input(13, D, z, 1.0, opt);
