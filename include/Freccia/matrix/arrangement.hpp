@@ -16,14 +16,10 @@
 class ArrangementBase {
     protected: // Need to be accessed by children so not private
     std::vector<unsigned int> _perm;
-    std::vector<unsigned int> _invperm;
-    bool invert = true; // Flag to indicate if inverse permutation needs to be recomputed
 
     public:
 
-    ArrangementBase(unsigned int N) : _perm(N), _invperm(N) {
-        std::iota(_perm.begin(), _perm.end(), 0);
-    }
+    ArrangementBase(){}
 
     // Get size
     unsigned int size(void){
@@ -31,19 +27,23 @@ class ArrangementBase {
     }
 
     // Get permutation vector
-    std::vector<unsigned int> & perm(void){
+    const std::vector<unsigned int> & perm(void){
         return _perm;
     }
 };
 
 class Permutation : public ArrangementBase {
 public:
-    Permutation(unsigned int N) : ArrangementBase(N) {}
+    Permutation() : ArrangementBase() {}
 
     // Argsort for eigen arrays. Default is decreasing order.
     void argsort(Eigen::ArrayXd& vec, bool reverse = true){
         unsigned int N = vec.size();
-        
+
+        // Initialize permutation vector
+        _perm = std::vector<unsigned int>(N);
+        std::iota(_perm.begin(), _perm.end(), 0);
+
         // Check if vector is of correct size
         assert(N == _perm.size());
 
@@ -59,14 +59,20 @@ public:
     }
 
     // Get inverse permutation vector
-    const std::vector<unsigned int>& invperm() const {        
+    const std::vector<unsigned int>& invperm() const {
         return _invperm;
     }
 
 private:
+    std::vector<unsigned int> _invperm;
+    bool invert = true; // Flag to indicate if inverse permutation needs to be recomputed
+
     // Compute the inverse permutation and store it in _invperm
     void computeInvperm() {
-        for(unsigned int i = 0; i < _perm.size(); ++i){
+        unsigned int N = _perm.size();
+        _invperm = std::vector<unsigned int>(N);
+
+        for(unsigned int i = 0; i < N; ++i){
             _invperm[_perm[i]] = i;
         }
     }
@@ -80,23 +86,26 @@ private:
     std::vector<unsigned int> _nnzero;
 
 public:
-    Partition(unsigned int N) : ArrangementBase(N) {}
+    Partition() : ArrangementBase() {}
 
     // Partition zero and non-zero elements based on threshold value val
     // This maintains the order of the nnzero elements
     void partition(Eigen::ArrayXd& vec, double val = 1e-15) {
-        // Ensure correct vector size
-        assert(vec.size() == _perm.size());
-        
+        unsigned int N = vec.size();
+
+        // Initialize permutation vector
+        _perm = std::vector<unsigned int>(N);
+        std::iota(_perm.begin(), _perm.end(), 0);
+
         // Start and end of vector
         unsigned int head = 0;
-        unsigned int tail = _perm.size() - 1;
+        unsigned int tail = N - 1;
 
         // Create space to store temporary partition result
         // Need this to preserve sorting order
-        std::vector<unsigned int> tmp(_perm.size());
+        std::vector<unsigned int> tmp(N);
         
-        for(unsigned int i = 0; i < _perm.size(); ++i) {
+        for(unsigned int i = 0; i < N; ++i) {
             if (std::abs(vec(i)) < val) {
                 tmp[tail--] = _perm[i];
             } else {
@@ -111,8 +120,6 @@ public:
         // Store nnzero and zero indices directly after partitioning
         _nnzero.assign(_perm.begin(), _perm.begin() + nnz);
         _zero.assign(_perm.begin() + nnz, _perm.end());
-
-        invert = true; // Need to recompute inverse
     }
     
     // Get non-zero indices
