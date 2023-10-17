@@ -154,6 +154,25 @@ struct HHDeflationMatrix{
         }
     }
 
+    // Apply the HH deflation matrix to a vector
+    // HH * v = (I - 2uuT / ||u||^2) * v = v - (2uTv / ||u||^2)*u 
+    void applyToVec(Eigen::Ref<Eigen::VectorXd> v) const{
+        // Make sure the code is compiling correctly. This function should be templated only for special Eigen objects.
+        //static_assert(!std::is_same<View, Eigen::Ref<Eigen::MatrixXd>>::value, "Error: generating template for Eigen::Ref object!");
+        //static_assert(!std::is_same<View, Eigen::MatrixXd>::value, "Error: generating template for Eigen::MatrixXd object!");
+        
+        #pragma omp parallel for
+        for(int i = 0; i < blocks.size(); i++){  
+            const HHBlock& HH = blocks[i];
+            unsigned int i = std::get<0>(HH);
+            unsigned int m = std::get<1>(HH);
+            const Eigen::VectorXd& u = std::get<2>(HH);
+            
+            // Compute indices for convenience
+            v.segment(i, m) = (v.segment(i, m) - (2. * (u.dot(v.segment(i, m)))) * u).eval();
+        }
+    }
+
     private:
         // Stores the indices of the HH blocks and the corresponding HH vectors
         std::vector<HHBlock> blocks;
