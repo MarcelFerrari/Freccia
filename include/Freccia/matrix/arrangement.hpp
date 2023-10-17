@@ -27,7 +27,7 @@ class ArrangementBase {
     }
 
     // Get permutation vector
-    const std::vector<unsigned int> & perm(void){
+    const std::vector<unsigned int> & perm(void) const{
         return _perm;
     }
 };
