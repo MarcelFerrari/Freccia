@@ -72,20 +72,29 @@ void Freccia::Arrowhead::ArrowheadEigenSolver::eigh(const Eigen::ArrayXd& D, con
     QR = Eigen::MatrixXd::Zero(NR, NR);
     
     // Quick return if there is one non-zero element
-    if(NR == 2){ // 2 because NR is the full size of the arrowhead matrix including b
+    if(nnzero.size() == 1){ // There is only 1 non-zero element in D
         // Construct 2x2 dense matrix representation of the arrowhead matrix
+        unsigned idx = nnzero[0];
+
         Eigen::Matrix<double, 2, 2> M;
     
-        M << S.D(nnzero[0]), S.w(nnzero[0]),
-             S.w(nnzero[0]), S.b;
+        M << S.D(idx), S.w(idx),
+             S.w(idx), S.b;
 
         // Use Eigen's selfadjointeigensolver that relies on closed form solution
         Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(M);
+        const Eigen::VectorXd& eigvals = solver.eigenvalues();
+        const Eigen::MatrixXd& eigvecs = solver.eigenvectors();
 
         // Copy eigenvalues and eigenvectors
-        ew(nnzero) = solver.eigenvalues();
-        ev(nnzero, nnzero) = solver.eigenvectors();
+        ew(idx) = eigvals(0);
+        ew(NS - 1) = eigvals(1); // Last eigenvalue
 
+        ev(idx, idx) = eigvecs(0, 0);
+        ev(idx, NS - 1) = eigvecs(0, 1); // Last column
+        ev(NS - 1, idx) = eigvecs(1, 0); // Last row
+        ev(NS - 1, NS - 1) = eigvecs(1, 1); // Last element
+        
     } else { // Standard computation
         // Create reduced problem matrix for convenience        
         R.D = S.D(nnzero);
@@ -98,17 +107,18 @@ void Freccia::Arrowhead::ArrowheadEigenSolver::eigh(const Eigen::ArrayXd& D, con
         for(unsigned int i = 0; i < NR; ++i){
             eigh_k(i);
         }
-    }
+        
+        // Copy solution back to ew and ev
+        ew(nnzero) = DR;
+        ew(NS - 1) = DR(NR - 1); // Last element
+        
+        // Not so trivial
+        ev(nnzero, nnzero) = QR.topLeftCorner(NR - 2, NR - 2); // Top left corner
+        ev.col(NS-1)(nnzero) = QR.col(NR - 1).head(NR - 1); // Last column
+        ev.row(NS-1)(nnzero) = QR.row(NR - 1).head(NR - 1); // Last row
+        ev(NS - 1, NS - 1) = QR(NR - 1, NR - 1); // Last element
 
-    // Copy solution back to ew and ev
-    ew(nnzero) = DR;
-    ew(NS - 1) = DR(NR - 1); // Last element
-    
-    // Not so trivial
-    ev(nnzero, nnzero) = QR.topLeftCorner(NR - 2, NR - 2); // Top left corner
-    ev.col(NS-1)(nnzero) = QR.col(NR - 1).head(NR - 1); // Last column
-    ev.row(NS-1)(nnzero) = QR.row(NR - 1).head(NR - 1); // Last row
-    ev(NS - 1, NS - 1) = QR(NR - 1, NR - 1); // Last element
+    }
     
     // Apply type 1 deflation to the eigenvectors
     // The HH matrix is templated so we can pass Eigen View object directly
