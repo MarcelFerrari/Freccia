@@ -19,12 +19,6 @@
 // DPR1Solver header
 #include "Freccia/arrowhead/ArrowheadEigenSolver.hpp"
 
-static void printMat(ArrowheadMatrix<double>& M){
-    std::cout << "D = " << M.D.transpose() << std::endl;
-    std::cout << "w = " << M.w.transpose() << std::endl;
-    std::cout << "b = " << M.b << std::endl;
-}
-
 // Main driver function
 void Freccia::Arrowhead::ArrowheadEigenSolver::eigh(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, double alpha) {        
     
