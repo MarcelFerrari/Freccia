@@ -39,7 +39,7 @@
 
 int test_input(unsigned int t, Eigen::ArrayXd & D, Eigen::ArrayXd & z, double rho = 1.0, Freccia::Options::DPR1EigenSolverOptions opt = Freccia::Options::DPR1EigenSolverOptions()) {
 
-  std::cout << KYEL << "Running DPR1 test " << t << "..." << RST << std::endl;
+  std::cout << KYEL << "Running Arrowhead test " << t << "..." << RST << std::endl;
 
   unsigned int N = D.size() + 1;
   Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N, N);
