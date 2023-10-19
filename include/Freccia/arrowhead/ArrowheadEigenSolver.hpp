@@ -79,12 +79,12 @@ class ArrowheadEigenSolver {
         void eigh_k(unsigned int k);
         void recastR();
         ArrowheadMatrix<double> shiftInvert(unsigned int i);
-        DPR1Matrix<double> shiftInvert(double sigma);
+        DPR1Matrix<double> shiftInvert(double sigma, unsigned int i);
         double solveSecularEQ(const ArrowheadMatrix<double>& Rinv, bool side);
         void vect(double sigma, double mu, unsigned int k);
         std::pair<double, double> computeKnu(const ArrowheadMatrix<double> &Rinv, const double nu);
-        std::tuple<double, double, double> recomputeEigenvalue(double nu, double nu1, double sigma_zero, bool side);
-        // double recomputeEigenvalue(unsigned int k);
+        std::tuple<double, double, double> recomputeEigenvalue(double nu, double nu1, double sigma_zero, bool side, unsigned int i);
+        double recomputeEigenvalue(unsigned int k);
 };
 
 } // namespace DPR1

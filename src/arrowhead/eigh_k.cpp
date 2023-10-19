@@ -85,7 +85,7 @@ void Freccia::Arrowhead::ArrowheadEigenSolver::eigh_k(unsigned int k){
     while(Knu > opt.KNU_TOL && niter < opt.RECOMPUTE_MAX_ITER){ // Knu >> 1
         //Shift between lambda and pole
         std::cout << "Recomputing eigenvalue " << k << " with Knu = " << Knu << std::endl;
-        std::tuple<double, double, double> rax = recomputeEigenvalue(nu, nu1, sigma, side);
+        std::tuple<double, double, double> rax = recomputeEigenvalue(nu, nu1, sigma, side, i);
         nu = std::get<0>(rax);
         nu1 = std::get<1>(rax);
         sigma = std::get<2>(rax);
@@ -103,17 +103,19 @@ void Freccia::Arrowhead::ArrowheadEigenSolver::eigh_k(unsigned int k){
     //std::cout << "Computing eigenvector" << std::endl;
     vect(sigma, mu, k);
     //std::cout << "Done computing eigenvector" << std::endl;
-    /*
+    
     // Check if lambda needs to be recomputed
     // std::abs(lambda) < ((k > 0) ? std::min(std::abs(lambda - R.D(k)), std::abs(lambda - R.D(k-1))) : std::abs(lambda - R.D(k)))
     if((std::abs(R.D(i)) + std::abs(mu)) / std::abs(lambda) > opt.K_LAMBDA_TOL){
-        if(k == 0 && R.D(0) < 0.0 ||
-           !side && sign(R.D(i)) + sign(R.D(i+1)) == 0 ||
-           i > 0 && side && sign(R.D(i)) + sign(R.D(i-1)) == 0 ){
+       if ( (k == 0 && R.D[0] < 0.0) || 
+            (k == NR - 1 && R.D[NR - 2] > 0.0) || 
+            (i < NR - 2 && !side && (sign(R.D[i]) + sign(R.D[i + 1]) == 0)) || 
+            (i > 0 && side && (sign(R.D[i]) + sign(R.D[i - 1]) == 0)))
+        {
             lambda = recomputeEigenvalue(k);
         }
     }
-    */
+    
     
     DR(k) = lambda;
 }

@@ -40,7 +40,7 @@ ArrowheadMatrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(un
     
     // Check conditioning of problem
     // Compute Kz
-    double Kz = (R.w.segment(0, i).abs().sum() + R.w.segment(i+1, NR - i - 1).abs().sum())*w_xi;
+    double Kz = (R.w.segment(0, i).abs().sum() + R.w.segment(i+1, NR - i - 2).abs().sum())*w_xi;
     
     // Compute Kb
     // The inverse is partitioned into two segments
@@ -110,30 +110,38 @@ ArrowheadMatrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(un
 }
 
 
-DPR1Matrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(double sigma){
+DPR1Matrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(double sigma, unsigned int i){
     // Inverse is a NR x NR matrix
     DPR1Matrix<double> Rinv(NR);
     
-    Rinv.D.head(NR - 1) = 1./(R.D - sigma);
-    Rinv.D(NR - 1) = 0.; // Last element is 0
-
     double bshift = R.b - sigma;
+    double P = 0., Q = 0.;
 
-    Rinv.z.head(NR - 1) = Rinv.D.head(NR - 1) * R.w;
-    Rinv.z(NR - 1) = -1.; // Last element is -1
-
-    double P = 0.0, Q = 0.0;
-    
-    Eigen::ArrayXd zsqrDinv = Rwsqr * Rinv.D.head(NR - 1);
-    
-    for(unsigned int i = 0; i < NR - 1; ++i){
-        if(zsqrDinv(i) > 0.0){
-            P += zsqrDinv(i);
-        } else {
-            Q += zsqrDinv(i);
-        }
+    // Invert first partition
+    if(i > 0){
+        Rinv.D.head(i) = 1./(R.D.head(i) - sigma);
+        Rinv.z.head(i) = Rinv.D.head(i) * R.w.head(i);
+        
+        // Compute contribution to P and Q
+        Eigen::ArrayXd zsqrDinv = Rwsqr.head(i) * Rinv.D.head(i);
+        P += zsqrDinv.unaryExpr([](double x) { return x > 0.0 ? x : 0.0; }).sum();
+        Q += zsqrDinv.unaryExpr([](double x) { return x <= 0.0 ? x : 0.0; }).sum();
     }
 
+    Rinv.D(i) = 0.; // i-th element is 0
+    Rinv.z(i) = -1.; // i-th element is -1
+
+    // Invert second partition
+    if(i < NR - 1){
+        Rinv.D.segment(i+1, NR - 2 - i) = 1./(R.D.tail(NR - 2 - i) - sigma);
+        Rinv.z.segment(i+1, NR - 2 - i) = Rinv.D.segment(i+1, NR - 2 - i) * R.w.tail(NR - 2 - i);
+
+        // Compute contribution to P and Q
+        Eigen::ArrayXd zsqrDinv = Rwsqr.tail(NR - 2 - i) * Rinv.D.segment(i+1, NR - 2 - i);
+        P += zsqrDinv.unaryExpr([](double x) { return x > 0.0 ? x : 0.0; }).sum();
+        Q += zsqrDinv.unaryExpr([](double x) { return x <= 0.0 ? x : 0.0; }).sum();
+    }
+   
     // Deal with bshift
     bshift > 0.0 ? Q -= bshift : P -= bshift;
 
@@ -141,16 +149,16 @@ DPR1Matrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(double 
     double Krho = (P-Q)/std::abs(P+Q);
 
     if(Krho < opt.RHO_TOL){ // Double precision is accurate enough
-        Rinv.rho = 1. / (P+Q);
+        Rinv.rho = -1. / (P+Q);
     } else { // Quad precision is required
         // Recast R to __float128 if needed
         recastR();
 
-        // We only need to store z_ld
+        // We only need to store w_ld
         Eigen::Array<__float128, Eigen::Dynamic, 1> z_ld = Rwsqr_ld / (R_ld.D - static_cast<__float128>(sigma));
         __float128 bshift_ld = R_ld.b - static_cast<__float128>(sigma);
 
-        // Explicit loop here as it is faster than using unaryExpr
+        // Explicit loop here as it is faster than using unaryExpr as no vectorization is possible
         __float128 P_ld = 0.0L, Q_ld = 0.0L;
 
         for(unsigned int i = 0; i < NR - 1; ++i){
@@ -162,7 +170,7 @@ DPR1Matrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(double 
         }
 
         bshift_ld > 0.0 ? Q_ld -= bshift_ld : P_ld -= bshift_ld;
-        Rinv.rho = static_cast<double>(1.0L/(P_ld+Q_ld));
+        Rinv.rho = static_cast<double>(-1.0L/(P_ld+Q_ld));
     }
 
     return std::move(Rinv);

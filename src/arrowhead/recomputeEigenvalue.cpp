@@ -37,14 +37,14 @@ std::pair<double, double> Freccia::Arrowhead::ArrowheadEigenSolver::computeKnu(c
     return std::make_pair(Knu, nu1);
 }
 
-std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::recomputeEigenvalue(double nu, double nu1, double sigma_zero, bool side){
+std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::recomputeEigenvalue(double nu, double nu1, double sigma_zero, bool side, unsigned int i){
     // Compute new shift with magic
     nu = (side == true) ? std::abs(nu) : -std::abs(nu);
     nu1 = (nu > 0.) ? -nu1 : nu1;
     double sigma = (nu + nu1)/(2.0 * nu * nu1) + sigma_zero;
 
     // Compute new Rinv
-    DPR1Matrix<double> Rinv = shiftInvert(sigma); // This time Rinv is a full size DPR1 Matrix
+    DPR1Matrix<double> Rinv = shiftInvert(sigma, i); // This time Rinv is a full size DPR1 Matrix
     
     // Compute bounds for the eigenvalue
     double left, right;
@@ -101,20 +101,18 @@ std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::rec
     return std::make_tuple(right, nu1, sigma);    
 };
 
-/*
-double Freccia::DPR1::DPR1EigenSolver::recomputeEigenvalue(unsigned int k){
+double Freccia::Arrowhead::ArrowheadEigenSolver::recomputeEigenvalue(unsigned int k){
         // Compute Lambda via rayleigh quotient using the computed eigenvector q
-        DPR1Matrix<double> Rinv = shiftInvert(0.0);
+        DPR1Matrix<double> Rinv = shiftInvert(0.0, k);
         
         if(std::isinf(Rinv.rho)){ // Check if matrix is singular
             return 0.0; 
         } else { // Compute lambda as Rayleigh quotient
             // qT(D + rho * vvT)q = qTDq + rho * (qTz) (zTq)
-            auto view = ev(type2_deflation.getPartition().nnzero(), type2_deflation.getPartition().nnzero());
-            double qTz = view.col(k).dot(Rinv.z.matrix());
-            double qTDq = view.col(k).dot(Rinv.D.matrix().cwiseProduct(view.col(k)));
+            const Eigen::VectorXd & q = QR.col(k);
+            double qTz = q.dot(Rinv.z.matrix());
+            double qTDq = q.dot(Rinv.D.matrix().cwiseProduct(q));
         
             return 1./(qTDq + Rinv.rho*qTz*qTz);
         }
 }
-*/
