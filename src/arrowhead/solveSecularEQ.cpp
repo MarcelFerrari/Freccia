@@ -20,6 +20,7 @@
 
 // DPR1Solver header
 #include "Freccia/arrowhead/ArrowheadEigenSolver.hpp"
+#include "Freccia/utils/root_finding.hpp"
 
 double Freccia::Arrowhead::ArrowheadEigenSolver::solveSecularEQ(const ArrowheadMatrix<double>& Rinv, bool side){
     // Initialize the left and right bounds of the solution
@@ -43,6 +44,16 @@ double Freccia::Arrowhead::ArrowheadEigenSolver::solveSecularEQ(const ArrowheadM
     // Define the secular function to be solved
     auto F = [&](double x){return Rinv.b - x - (wsqr / (Rinv.D - x)).sum();};
 
+    // Try with fast solver first
+    {
+        double nu = Freccia::RootFinding::toms748(left, right, F, opt);
+
+        if(!std::isnan(nu)){ // Check that the fast solver did not fail
+            return nu;
+        }
+    }
+    
+    // Fast solver failed. Use bisection.
     double middle = (left + right) / 2.;
     unsigned niter = 0;
     double eps = std::numeric_limits<double>::epsilon();

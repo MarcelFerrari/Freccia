@@ -10,7 +10,7 @@
 #include <string>
 #include <tuple>
 
-#include <iomanip> //
+#include <iomanip>
 
 // Eigen
 #include <Eigen/Dense>
@@ -20,6 +20,7 @@
 
 // DPR1Solver header
 #include "Freccia/arrowhead/ArrowheadEigenSolver.hpp"
+#include "Freccia/utils/root_finding.hpp"
 
 std::pair<double, double> Freccia::Arrowhead::ArrowheadEigenSolver::computeKnu(const ArrowheadMatrix<double> &Rinv, const double nu){
     // Compute Knu
@@ -74,17 +75,28 @@ std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::rec
         }
     }
     
+    // Recompute nu1
+    nu1 =  Rinv.D.abs().maxCoeff() + std::abs(Rinv.rho)*zsqr.sum();
+    
+    // Recompute nu
     // Define the secular function to be solved
     auto F = [&](double x){return 1. + Rinv.rho * (zsqr/(Rinv.D - x)).sum();};
 
+    // Try with fast solver first
+    {
+        double nu = Freccia::RootFinding::toms748(left, right, F, opt);
+
+        if(!std::isnan(nu)){ // Check that the fast solver did not fail
+            return std::make_tuple(nu, nu1, sigma);
+        }
+    }
+
+    // Fast solver failed, resorting to bisection.
     double middle = (left + right) / 2.;
     unsigned niter = 0;
     double eps = std::numeric_limits<double>::epsilon();
     double sgn = (Rinv.rho > 0.0) ? 1.0 : -1.0;
     
-    // Recompute nu1
-    nu1 =  Rinv.D.abs().maxCoeff() + std::abs(Rinv.rho)*zsqr.sum();
-
     // Recompute nu
     while(((right - left) > 2.*eps*std::max(std::abs(left), std::abs(right))) && niter < opt.BISECT_MAX_ITER){
         
