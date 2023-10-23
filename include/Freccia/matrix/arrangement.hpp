@@ -90,7 +90,7 @@ public:
 
     // Partition zero and non-zero elements based on threshold value val
     // This maintains the order of the nnzero elements
-    void partition(const Eigen::ArrayXd& vec, double val = 1e-15) {
+    void partition(const Eigen::ArrayXd& vec, double val) {
         unsigned int N = vec.size();
 
         // Initialize permutation vector

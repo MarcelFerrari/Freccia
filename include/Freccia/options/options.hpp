@@ -1,7 +1,7 @@
 #ifndef FRECCIA_OPTIONS_H
 #define FRECCIA_OPTIONS_H
 
-#include "Freccia/utils/utils.hpp"
+#include "Freccia/utils/env.hpp"
 
 namespace Freccia::Options {
     // Struct for DPR1 Eigensolver options
@@ -17,7 +17,6 @@ namespace Freccia::Options {
         unsigned int BISECT_MAX_ITER = 100;
         unsigned int RECOMPUTE_MAX_ITER = 3;
         bool CHECK_ENV = true;
-        bool RECONSTRUCT_Q = true;
 
         // Default constructor
         DPR1EigenSolverOptions() {}
@@ -30,20 +29,20 @@ namespace Freccia::Options {
             RHO_TOL(other.RHO_TOL), K_LAMBDA_TOL(other.K_LAMBDA_TOL),
             BISECT_MAX_ITER(other.BISECT_MAX_ITER), 
             RECOMPUTE_MAX_ITER(other.RECOMPUTE_MAX_ITER),
-            CHECK_ENV(other.CHECK_ENV), RECONSTRUCT_Q(other.RECONSTRUCT_Q)
+            CHECK_ENV(other.CHECK_ENV)
         {}
 
         void loadEnv() {
             if(CHECK_ENV){
-                read_env("FRECCIA_DPR1_KZ_TOL", KZ_TOL);
-                read_env("FRECCIA_DPR1_KB_TOL", KB_TOL);
-                read_env("FRECCIA_DPR1_KNU_TOL", KNU_TOL);
-                read_env("FRECCIA_DPR1_RHO_TOL", RHO_TOL);
-                read_env("FRECCIA_DPR1_K_LAMBDA_TOL", K_LAMBDA_TOL);
-                read_env("FRECCIA_DPR1_BISECT_MAX_ITER", BISECT_MAX_ITER);
-                read_env("FRECCIA_DPR1_RECOMPUTE_MAX_ITER", RECOMPUTE_MAX_ITER);
-                read_env("FRECCIA_DPR1_ABS_ZERO_TOL", ABS_ZERO_TOL);
-                read_env("FRECCIA_DPR1_REL_ZERO_TOL", REL_ZERO_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_KZ_TOL", KZ_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_KB_TOL", KB_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_KNU_TOL", KNU_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_RHO_TOL", RHO_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_K_LAMBDA_TOL", K_LAMBDA_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_BISECT_MAX_ITER", BISECT_MAX_ITER);
+                Freccia::Env::read_env("FRECCIA_DPR1_RECOMPUTE_MAX_ITER", RECOMPUTE_MAX_ITER);
+                Freccia::Env::read_env("FRECCIA_DPR1_ABS_ZERO_TOL", ABS_ZERO_TOL);
+                Freccia::Env::read_env("FRECCIA_DPR1_REL_ZERO_TOL", REL_ZERO_TOL);
             }
         }
     };
@@ -61,7 +60,6 @@ namespace Freccia::Options {
         unsigned int BISECT_MAX_ITER = 100;
         unsigned int RECOMPUTE_MAX_ITER = 3;
         bool CHECK_ENV = true;
-        bool RECONSTRUCT_Q = true;
 
         // Default constructor
         ArrowheadEigenSolverOptions() {}
@@ -74,20 +72,20 @@ namespace Freccia::Options {
             RHO_TOL(other.RHO_TOL), K_LAMBDA_TOL(other.K_LAMBDA_TOL),
             BISECT_MAX_ITER(other.BISECT_MAX_ITER), 
             RECOMPUTE_MAX_ITER(other.RECOMPUTE_MAX_ITER),
-            CHECK_ENV(other.CHECK_ENV), RECONSTRUCT_Q(other.RECONSTRUCT_Q)
+            CHECK_ENV(other.CHECK_ENV)
         {}
 
         void loadEnv() {
             if(CHECK_ENV){
-                read_env("FRECCIA_ARROW_KZ_TOL", KZ_TOL);
-                read_env("FRECCIA_ARROW_KB_TOL", KB_TOL);
-                read_env("FRECCIA_ARROW_KNU_TOL", KNU_TOL);
-                read_env("FRECCIA_ARROW_RHO_TOL", RHO_TOL);
-                read_env("FRECCIA_ARROW_K_LAMBDA_TOL", K_LAMBDA_TOL);
-                read_env("FRECCIA_ARROW_BISECT_MAX_ITER", BISECT_MAX_ITER);
-                read_env("FRECCIA_ARROW_RECOMPUTE_MAX_ITER", RECOMPUTE_MAX_ITER);
-                read_env("FRECCIA_ARROW_ABS_ZERO_TOL", ABS_ZERO_TOL);
-                read_env("FRECCIA_ARROW_REL_ZERO_TOL", REL_ZERO_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_KZ_TOL", KZ_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_KB_TOL", KB_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_KNU_TOL", KNU_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_RHO_TOL", RHO_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_K_LAMBDA_TOL", K_LAMBDA_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_BISECT_MAX_ITER", BISECT_MAX_ITER);
+                Freccia::Env::read_env("FRECCIA_ARROW_RECOMPUTE_MAX_ITER", RECOMPUTE_MAX_ITER);
+                Freccia::Env::read_env("FRECCIA_ARROW_ABS_ZERO_TOL", ABS_ZERO_TOL);
+                Freccia::Env::read_env("FRECCIA_ARROW_REL_ZERO_TOL", REL_ZERO_TOL);
             }
         }
     };
