@@ -61,7 +61,7 @@ class DPR1EigenSolver {
         Permutation sort;
 
         // Type 1 deflation
-        Freccia::Deflation::Type1<Freccia::Options::DPR1EigenSolverOptions> type1_deflation;
+        Freccia::Deflation::Type1 type1_deflation;
         
         // Type 2 deflation
         Freccia::Deflation::Type2 type2_deflation;

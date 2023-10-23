@@ -58,10 +58,10 @@ void Freccia::DPR1::DPR1EigenSolver::eigh(const Eigen::ArrayXd& D, const Eigen::
     S.z = S.z(sort.perm()).eval();
     
     // Compute and apply type 1 deflation to S
-    type1_deflation.deflate(S.D, S.z, opt);
+    type1_deflation.deflate(S.D, S.z, opt.ABS_ZERO_TOL, opt.REL_ZERO_TOL);
 
     // Compute type 2 deflation of S
-    type2_deflation.deflate(S.D, S.z, ew, ev);
+    type2_deflation.deflate(S.D, S.z, ew, ev, opt.ABS_ZERO_TOL);
     
     // Build reduced DPR1 matrix R
     // Recasting R to __float128 will be done lazily if necessary
@@ -92,15 +92,11 @@ void Freccia::DPR1::DPR1EigenSolver::eigh(const Eigen::ArrayXd& D, const Eigen::
     }
     
     // Apply type 1 deflation to the eigenvectors
-    // Easier to make a copy of the eigenvectors and then apply the deflation
-    // Only reconstruct Q if needed!
-    if(opt.RECONSTRUCT_Q){
-        // The HH matrix takes an Eigen::Ref object so we can pass an IndexedView directly
-        { // Do not pollute namespace
-            const std::vector<unsigned int>& type1_nnzero = type1_deflation.getPartition().nnzero();
-            const HHDeflationMatrix& type1_HH = type1_deflation.getHH();
-            type1_HH.applyToTheLeft(ev(type1_nnzero, type1_nnzero));
-        }
+    // The HH matrix takes an Eigen::Ref object so we can pass an IndexedView directly
+    { 
+        const std::vector<unsigned int>& type1_nnzero = type1_deflation.getPartition().nnzero();
+        const HHDeflationMatrix& type1_HH = type1_deflation.getHH();
+        type1_HH.applyToTheLeft(ev(type1_nnzero, type1_nnzero));
     }
 
     // Finally, unsort the eigenvalues and eigenvectors

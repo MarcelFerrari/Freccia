@@ -4,18 +4,20 @@
 #include <Eigen/Dense>
 #include "Freccia/matrix/matrix.hpp"
 #include "Freccia/options/options.hpp"
+#include "Freccia/utils/numeric.hpp"
 
 // The deflation procedures are templated to work both for DPR1 and Arrowhead solvers
 namespace Freccia::Deflation {
-    template<typename OPT_T>
     class Type1{
         public:
             // Constructor
             Type1() {}
 
             // Deflate interface
-            void deflate(const Eigen::ArrayXd& D, Eigen::ArrayXd& z, OPT_T& opt){
-                compute_type1_deflation(D, z, opt); // Call type 1 deflation
+            void deflate(const Eigen::ArrayXd& D, Eigen::ArrayXd& z, const double ABS_ZERO_TOL_IN, const double REL_ZERO_TOL_IN){
+                ABS_ZERO_TOL = ABS_ZERO_TOL_IN;
+                REL_ZERO_TOL = REL_ZERO_TOL_IN;
+                compute_type1_deflation(D, z); // Call type 1 deflation
             };
 
             // Return HH deflation matrix
@@ -28,10 +30,12 @@ namespace Freccia::Deflation {
             // Need to store partitioning and HH matrix for type 1 deflation
             Partition type1_deflation;
             HHDeflationMatrix HH;
+            double ABS_ZERO_TOL;
+            double REL_ZERO_TOL;
             
-            void compute_type1_deflation(const Eigen::ArrayXd& D_in, Eigen::ArrayXd& z_in, OPT_T& opt){
+            void compute_type1_deflation(const Eigen::ArrayXd& D_in, Eigen::ArrayXd& z_in){
                 // Partition values in z_in
-                type1_deflation.partition(z_in);
+                type1_deflation.partition(z_in, ABS_ZERO_TOL);
 
                 // Apply type 1 deflation
                 const std::vector<unsigned int>& nnzero = type1_deflation.nnzero();
@@ -57,7 +61,7 @@ namespace Freccia::Deflation {
                         
                         // Increment 'j' while subsequent elements are approximately equal to the current eigenvalue.
                         // This will effectively group together and count elements of the same value (up to a small tolerance).
-                        while(j < N && (isclose(D(j), lam, opt.ABS_ZERO_TOL, opt.REL_ZERO_TOL))){
+                        while(j < N && (Freccia::Numeric::isclose(D(j), lam, ABS_ZERO_TOL, REL_ZERO_TOL))){
                             ++j;
                         } 
 

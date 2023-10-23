@@ -17,7 +17,10 @@
 
 // Matrix datatypes
 #include "Freccia/matrix/matrix.hpp"
-#include "Freccia/utils/utils.hpp"
+#include "Freccia/utils/numeric.hpp"
+
+// Shortcut for Freccia::Numeric::sign()
+using namespace Freccia::Numeric;
 
 // DPR1Solver header
 #include "Freccia/dpr1/DPR1EigenSolver.hpp"

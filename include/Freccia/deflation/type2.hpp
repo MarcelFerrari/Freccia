@@ -12,7 +12,8 @@ namespace Freccia::Deflation {
             Type2() {}
 
             // Deflate interface
-            void deflate(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, Eigen::VectorXd& ew, Eigen::MatrixXd& ev){
+            void deflate(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, Eigen::VectorXd& ew, Eigen::MatrixXd& ev, const double ABS_ZERO_TOL_IN) {
+                ABS_ZERO_TOL = ABS_ZERO_TOL_IN;
                 compute_type2_deflation(D, z, ew, ev); // Call type 2 deflation
             };
 
@@ -22,10 +23,11 @@ namespace Freccia::Deflation {
         private:
             // Need to store partitioning and HH matrix for type 1 deflation
             Partition type2_deflation;
+            double ABS_ZERO_TOL;
             
             void compute_type2_deflation(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, Eigen::VectorXd& ew, Eigen::MatrixXd& ev){
                 // Partition zero and non zero values in S.z
-                type2_deflation.partition(z);
+                type2_deflation.partition(z, ABS_ZERO_TOL);
                 
                 // Compute the deflated solution. For each index 'k' corresponding to a zero 
                 // element in 'z', set the (k,k)-th element of matrix Q to 1 and the k-th 
