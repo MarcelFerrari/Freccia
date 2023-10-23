@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include <vector>
+#include "Freccia/utils/matrix_storage.hpp"
 
 // Wrapper class for LAPACK dsbevd routine
 namespace Freccia::Banded {
@@ -16,7 +17,9 @@ public:
         if (uplo != '\0') {
             A_band = A;
         } else {
-            make_banded(A);  // Assuming this modifies 'A' in-place or updates some member of the class
+            // Convert matrix to lower compact storage format
+            A_band = Freccia::Banded::make_compressed(A, f);
+            uplo = 'L';
         }
 
         // Perform eigendecomposition
@@ -34,7 +37,6 @@ private:
     Eigen::VectorXd ew;   // Eigenwerte
     Eigen::MatrixXd ev;  // Eigenvektoren
 
-    void make_banded(const Eigen::Ref<const Eigen::MatrixXd> & A);
     void dsbevd_wrapper();
 };
 }
