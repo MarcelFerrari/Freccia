@@ -51,10 +51,10 @@ void Freccia::Arrowhead::ArrowheadEigenSolver::eigh(const Eigen::ArrayXd& D, con
     ev = Eigen::MatrixXd::Zero(NS, NS);
 
     // Compute and apply type 1 deflation to S
-    type1_deflation.deflate(S.D, S.w, opt);
+    type1_deflation.deflate(S.D, S.w, opt.ABS_ZERO_TOL, opt.REL_ZERO_TOL);
 
     // Compute type 2 deflation of S
-    type2_deflation.deflate(S.D, S.w, ew, ev);
+    type2_deflation.deflate(S.D, S.w, ew, ev, opt.ABS_ZERO_TOL);
     
     // Build reduced arrowhead matrix R
     // Recasting R to __float128 will be done lazily if necessary

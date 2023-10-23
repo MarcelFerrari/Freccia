@@ -17,10 +17,13 @@
 
 // Matrix datatypes
 #include "Freccia/matrix/matrix.hpp"
-#include "Freccia/utils/utils.hpp"
+#include "Freccia/utils/numeric.hpp"
 
 // DPR1Solver header
 #include "Freccia/arrowhead/ArrowheadEigenSolver.hpp"
+
+// Shortcut for Freccia::Numeric::sign()
+using namespace Freccia::Numeric;
 
 void Freccia::Arrowhead::ArrowheadEigenSolver::eigh_k(unsigned int k){
     // Variables for the sigma (shift), side (left = 0 or right = 1), and index to use in the computation
