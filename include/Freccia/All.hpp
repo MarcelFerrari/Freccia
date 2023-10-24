@@ -5,6 +5,7 @@
 #include "Freccia/dprk/DPRKEigenSolver.hpp"
 #include "Freccia/bdc/BDCEigenSolver.hpp"
 #include "Freccia/banded/BandedEigenSolver.hpp"
+#include "Freccia/broad_arrowhead/BroadArrowheadEigenSolver.hpp"
 #include "Freccia/utils/utils.hpp"
 
 #endif

@@ -7,12 +7,11 @@
 #include "Freccia/banded/BandedEigenSolver.hpp"
 
 // Full eigenproblem
-void Freccia::Arrowhead::BroadArrowheadEigenSolver::eigh(const Eigen::Ref<const Eigen::VectorXd> & B, const Eigen::Ref<const Eigen::MatrixXd> & W) {
+void Freccia::Arrowhead::BroadArrowheadEigenSolver::eigh(const Eigen::Ref<const Eigen::MatrixXd> & B, const Eigen::Ref<const Eigen::MatrixXd> & W) {
     // Initialize result
     ew = Eigen::VectorXd::Zero(n);
-    ev = Eigen::MatrixXd::Zero(n, n);
+    ev = Eigen::MatrixXd::Identity(n, n); // This is important!
 
-    // Diagonalize banded block
     { // Do not pollute namespace
         Freccia::Banded::BandedEigenSolver solver(B, f, uplo);
         ew.head(l) = solver.eigenvalues();
@@ -31,6 +30,7 @@ void Freccia::Arrowhead::BroadArrowheadEigenSolver::eigh(const Eigen::Ref<const 
         // Update eigenvalues and eigenvectors
         ew.head(l+k+1) = solver.eigenvalues();
         ev.topLeftCorner(l+k+1, l+k+1) *= solver.eigenvectors(); // Backpropagation of eigenvectors
+
     }
 
 }
