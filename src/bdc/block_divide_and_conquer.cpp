@@ -62,7 +62,7 @@ void Freccia::Banded::BDCEigenSolver::block_divide_and_conquer(const Eigen::Matr
             // Encode diagonal block
             diag_blocks[i] = std::make_tuple(0, 1);
 
-        } else if (i == p-1){ // Las block 
+        } else if (i == p-1){ // Last block 
             // Get required matrices
             const Eigen::MatrixXd& U1 = std::get<0>(svdBlocks.back());
             const Eigen::VectorXd& S1 = std::get<1>(svdBlocks.back());
