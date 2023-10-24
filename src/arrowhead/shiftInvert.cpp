@@ -21,12 +21,6 @@
 // DPR1Solver header
 #include "Freccia/arrowhead/ArrowheadEigenSolver.hpp"
 
-static void printMat(ArrowheadMatrix<double>& M){
-    std::cout << "D = " << M.D.transpose() << std::endl;
-    std::cout << "w = " << M.w.transpose() << std::endl;
-    std::cout << "b = " << M.b << std::endl;
-}
-
 ArrowheadMatrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(unsigned int i){
     // Compute the shift sigma
     double sigma = R.D(i);
@@ -110,38 +104,34 @@ ArrowheadMatrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(un
 }
 
 
-DPR1Matrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(double sigma, unsigned int i){
+DPR1Matrix<double> Freccia::Arrowhead::ArrowheadEigenSolver::shiftInvert(double sigma){
     // Inverse is a NR x NR matrix
     DPR1Matrix<double> Rinv(NR);
     
     double bshift = R.b - sigma;
-    double P = 0., Q = 0.;
 
-    // Invert first partition
-    if(i > 0){
-        Rinv.D.head(i) = 1./(R.D.head(i) - sigma);
-        Rinv.z.head(i) = Rinv.D.head(i) * R.w.head(i);
-        
-        // Compute contribution to P and Q
-        Eigen::ArrayXd zsqrDinv = Rwsqr.head(i) * Rinv.D.head(i);
-        P += zsqrDinv.unaryExpr([](double x) { return x > 0.0 ? x : 0.0; }).sum();
-        Q += zsqrDinv.unaryExpr([](double x) { return x <= 0.0 ? x : 0.0; }).sum();
-    }
+    // Compute inverse
+    Rinv.D.head(NR-1) = 1./(R.D - sigma);
+    Rinv.z.head(NR-1) = Rinv.D * R.w;
+    
+    // Compute contribution to P and Q
+    Eigen::ArrayXd zsqrDinv = Rwsqr * Rinv.D;
+    
+    double P = zsqrDinv.unaryExpr([](double x) { return x > 0.0 ? x : 0.0; }).sum();
+    double Q = zsqrDinv.unaryExpr([](double x) { return x <= 0.0 ? x : 0.0; }).sum();
+    
+    // Compute P and Q with explicit for loops
+    // for(unsigned int j = 0; j < NR-1; ++j){
+    //     if(zsqrDinv(j) > 0.0){
+    //         P += zsqrDinv(j);
+    //     } else {
+    //         Q += zsqrDinv(j);
+    //     }
+    // }
 
-    Rinv.D(i) = 0.; // i-th element is 0
-    Rinv.z(i) = -1.; // i-th element is -1
+    Rinv.D(NR-1) = 0.; // i-th element is 0
+    Rinv.z(NR-1) = -1.; // i-th element is -1
 
-    // Invert second partition
-    if(i < NR - 1){
-        Rinv.D.segment(i+1, NR - 2 - i) = 1./(R.D.tail(NR - 2 - i) - sigma);
-        Rinv.z.segment(i+1, NR - 2 - i) = Rinv.D.segment(i+1, NR - 2 - i) * R.w.tail(NR - 2 - i);
-
-        // Compute contribution to P and Q
-        Eigen::ArrayXd zsqrDinv = Rwsqr.tail(NR - 2 - i) * Rinv.D.segment(i+1, NR - 2 - i);
-        P += zsqrDinv.unaryExpr([](double x) { return x > 0.0 ? x : 0.0; }).sum();
-        Q += zsqrDinv.unaryExpr([](double x) { return x <= 0.0 ? x : 0.0; }).sum();
-    }
-   
     // Deal with bshift
     bshift > 0.0 ? Q -= bshift : P -= bshift;
 

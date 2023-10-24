@@ -79,7 +79,7 @@ void Freccia::Arrowhead::ArrowheadEigenSolver::eigh_k(unsigned int k){
     unsigned int niter = 0;
     while(Knu > opt.KNU_TOL && niter < opt.RECOMPUTE_MAX_ITER){ // Knu >> 1
         //Shift between lambda and pole
-        std::tuple<double, double, double> rax = recomputeEigenvalue(nu, nu1, sigma, side, i);
+        std::tuple<double, double, double> rax = recomputeEigenvalue(nu, nu1, sigma, side);
         nu = std::get<0>(rax);
         nu1 = std::get<1>(rax);
         sigma = std::get<2>(rax);

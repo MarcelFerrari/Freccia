@@ -26,7 +26,6 @@ std::pair<double, double> Freccia::Arrowhead::ArrowheadEigenSolver::computeKnu(c
     // Compute Knu
     double nu1 = 0.0;
     
-    // Compute nu1 = ||(D + zz^T - sigma I)^-1||_1,2
     for (unsigned int j = 0; j < NR - 1; j++) {
         if(j == Rinv.i){continue;} // Skip the index i
         nu1 = std::max(nu1, std::abs(Rinv.D(j)) + std::abs(Rinv.w(j)));
@@ -38,14 +37,14 @@ std::pair<double, double> Freccia::Arrowhead::ArrowheadEigenSolver::computeKnu(c
     return std::make_pair(Knu, nu1);
 }
 
-std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::recomputeEigenvalue(double nu, double nu1, double sigma_zero, bool side, unsigned int i){
+std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::recomputeEigenvalue(double nu, double nu1, double sigma_zero, bool side){
     // Compute new shift with magic
     nu = (side == true) ? std::abs(nu) : -std::abs(nu);
     nu1 = (nu > 0.) ? -nu1 : nu1;
     double sigma = (nu + nu1)/(2.0 * nu * nu1) + sigma_zero;
 
     // Compute new Rinv
-    DPR1Matrix<double> Rinv = shiftInvert(sigma, i); // This time Rinv is a full size DPR1 Matrix
+    DPR1Matrix<double> Rinv = shiftInvert(sigma); // This time Rinv is a full size DPR1 Matrix
     
     // Compute bounds for the eigenvalue
     double left, right;
@@ -115,7 +114,7 @@ std::tuple<double, double, double> Freccia::Arrowhead::ArrowheadEigenSolver::rec
 
 double Freccia::Arrowhead::ArrowheadEigenSolver::recomputeEigenvalue(unsigned int k){
         // Compute Lambda via rayleigh quotient using the computed eigenvector q
-        DPR1Matrix<double> Rinv = shiftInvert(0.0, k);
+        DPR1Matrix<double> Rinv = shiftInvert(0.0);
         
         if(std::isinf(Rinv.rho)){ // Check if matrix is singular
             return 0.0; 
