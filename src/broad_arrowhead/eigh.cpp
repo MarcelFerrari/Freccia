@@ -1,10 +1,12 @@
 #include <Eigen/Dense>
 #include <iostream>
+#include <cassert>
 
 // Freccia
 #include "Freccia/broad_arrowhead/BroadArrowheadEigenSolver.hpp"
 #include "Freccia/arrowhead/ArrowheadEigenSolver.hpp"
 #include "Freccia/banded/BandedEigenSolver.hpp"
+#include "Freccia/bdc/BDCEigenSolver.hpp"
 
 // Full eigenproblem
 void Freccia::Arrowhead::BroadArrowheadEigenSolver::eigh(const Eigen::Ref<const Eigen::MatrixXd> & B, const Eigen::Ref<const Eigen::MatrixXd> & W) {
@@ -12,10 +14,16 @@ void Freccia::Arrowhead::BroadArrowheadEigenSolver::eigh(const Eigen::Ref<const 
     ew = Eigen::VectorXd::Zero(n);
     ev = Eigen::MatrixXd::Identity(n, n); // This is important!
 
-    { // Do not pollute namespace
+    if(method == "banded"){
         Freccia::Banded::BandedEigenSolver solver(B, f, uplo);
         ew.head(l) = solver.eigenvalues();
         ev.topLeftCorner(l, l) = solver.eigenvectors();
+    } else if (method == "bdc"){
+        Freccia::Banded::BDCEigenSolver solver(B, f);
+        ew.head(l) = solver.eigenvalues();
+        ev.topLeftCorner(l, l) = solver.eigenvectors();
+    } else {
+        assert(false && "Invalid method selected for BroadArrowheadEigenSolver class!");
     }
 
     // Diagonalize using explicit form of recursion

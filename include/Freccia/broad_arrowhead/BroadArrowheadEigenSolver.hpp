@@ -3,6 +3,7 @@
 
 // Eigen
 #include <Eigen/Dense>
+#include <string>
 
 namespace Freccia::Arrowhead {
 
@@ -10,9 +11,8 @@ namespace Freccia::Arrowhead {
         public:
         // Constructor for compact matrix storage
         // B is assumed to be in compact stoarage format
-        BroadArrowheadEigenSolver(const Eigen::Ref<const Eigen::MatrixXd>& B, const Eigen::Ref<const Eigen::MatrixXd>& W, char uplo_in)
-        : f(B.rows()), g(W.cols()), uplo(uplo_in), n(B.cols() + W.cols()), l(B.cols())
-        {
+        BroadArrowheadEigenSolver(const Eigen::Ref<const Eigen::MatrixXd>& B, const Eigen::Ref<const Eigen::MatrixXd>& W, unsigned int f_in, unsigned int g_in, const std::string & method_in="banded", char uplo_in = 'L')
+        : f(f_in), g(g_in), uplo(uplo_in), l(B.cols()), n(l+g), method(method_in) {
             eigh(B, W);
         };
 
@@ -23,11 +23,13 @@ namespace Freccia::Arrowhead {
         
         private:
         // Member variables
-        unsigned int l; // Size of the banded block
-        unsigned int f; // Bandwidth of the shaft
-        char uplo;      // Storage format of the shaft
-        unsigned int g; // Bandwidth of the arrow head
-        unsigned int n; // Size of the matrix
+        const unsigned int l; // Size of the banded block
+        const unsigned int f; /* If the banded eigensolver is used, this is the bandwidth of the shaft.
+                               * If the BDC algorithm is used, this is the size of the diagonal and off-diagonal blocks. */
+        const char uplo;      // Storage format of the shaft
+        const unsigned int g; // Width of the arrowhead
+        const unsigned int n; // Size of the matrix
+        const std::string& method; // Method used to solve the eigenvalue problem
 
         // Result
         Eigen::VectorXd ew; // Eigenwerte
