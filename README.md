@@ -1,6 +1,6 @@
 # Freccia Eigensolver Library
 
-![Freccia Eigensolver Logo](logo.svg)
+<img src="logo.svg" width="250">
 
 # The Freccia Eigensolver Library
 The Freccia Eigensolver library is a high-performance computational tool designed for efficient diagonalization of special symmetric real matrices. 
