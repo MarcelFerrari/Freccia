@@ -1,7 +1,3 @@
-Here's a short Markdown Readme for the GitHub page of the Freccia Eigensolver library:
-
----
-
 # Freccia Eigensolver Library
 
 ![Freccia Eigensolver Logo](logo.svg)
