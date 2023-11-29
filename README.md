@@ -2,7 +2,6 @@
 
 <img src="logo.svg" width="250">
 
-# The Freccia Eigensolver Library
 The Freccia Eigensolver library is a high-performance computational tool designed for efficient diagonalization of special symmetric real matrices. 
 Currently, the following matrix structures are supported:
 - Diagonal Plus Rank One (DPR1)
