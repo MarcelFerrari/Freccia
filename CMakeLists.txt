@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Freccia)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wno-enum-compare -fopenmp -march=native -std=c++17 -DEIGEN_NO_DEBUG -DEIGEN_USE_MKL_ALL -DMKL_ILP64 -m64")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wno-enum-compare -fopenmp -march=native -std=c++17 -DEIGEN_NO_DEBUG -DEIGEN_USE_MKL_ALL -DMKL_ILP64 -m64 -DFRECCIA_USE_MKL")
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
