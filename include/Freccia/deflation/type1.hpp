@@ -34,6 +34,7 @@ namespace Freccia::Deflation {
             double REL_ZERO_TOL;
             
             void compute_type1_deflation(const Eigen::ArrayXd& D_in, Eigen::ArrayXd& z_in){
+            
                 // Partition values in z_in
                 type1_deflation.partition(z_in, ABS_ZERO_TOL);
 
@@ -66,7 +67,7 @@ namespace Freccia::Deflation {
                         } 
 
                         // Store starting index and multiplicity of the current eigenvalue if it is degenerate
-                        if(j - i > 1){ //&& std::abs(S.D(i)) > 1e-16){ // Deflate only if the eigenvalue is non-zero
+                        if(j - i > 1){
                             multiplicity.push_back(std::make_pair(i, j - i));
                         }
 
@@ -77,25 +78,21 @@ namespace Freccia::Deflation {
 
                 // Iterate over the multiplicity vector which contains pairs of (start_index, multiplicity) = (i, m)
                 for(const auto & [i, m]: multiplicity){
-                    // Calculate the norm of the current z segment
-                    double znorm = z.segment(i, m).matrix().norm();
-
-                    // Extract the segment from z_sorted corresponding to this eigenvalue group
+                    // Compute householder coefficient and vector
                     Eigen::VectorXd u = z.segment(i, m).matrix();
+                    double znorm = u.norm();
+                    double beta;
 
-                    // Add the norm of the segment to the first element of 'u' to create the reflection vector
-                    // if we choose u = z + |z| * e_0, then H*z = -|z| * e_0,
-                    // alternatively, we can choose u = z - |z| * e_0 and obtain H*z = |z| * e_0
-                    u(0) += znorm;
-                    u.normalize(); // Normalize the reflection vector
+                    // Compute the Householder vector 'u' and coefficient 'beta' in-place
+                    HH.compute_HH_vector(beta, u);
             
                     // Push block to Householder matrix using the reflection vector 'u'
-                    // The HHDeflationMatrix HH is defined in the class definition!
-                    HH.push(i, m, std::move(u)); // Pass an rvalue reference to 'u' to avoid copying
+                    // The HHDeflationMatrix HH is defined in the class definition of the eigensolver!
+                    HH.push(i, m, beta, std::move(u)); // Pass an rvalue reference to 'u' to avoid copying
 
                     // Deflate z by implicitly applying the Householder reflection: 
                     // the first element becomes the norm, and the rest of the elements become zero.
-                    z(i) = -znorm; // The sign is important here! 
+                    z(i) = znorm; // The sign is important here! 
                     z.segment(i + 1, m - 1).setZero();
                 }
             }

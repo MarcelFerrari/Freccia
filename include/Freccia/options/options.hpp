@@ -8,7 +8,7 @@ namespace Freccia::Options {
     struct DPR1EigenSolverOptions {
         double rho = 1.0;
         double ABS_ZERO_TOL = 1e-13;
-        double REL_ZERO_TOL = 1e-13;
+        double REL_ZERO_TOL = 0.0;
         unsigned int KZ_TOL = 1e3;
         double KB_TOL = 1e3;
         double KNU_TOL = 1e3;
@@ -51,7 +51,7 @@ namespace Freccia::Options {
     struct ArrowheadEigenSolverOptions {
         double rho = 1.0;
         double ABS_ZERO_TOL = 1e-13;
-        double REL_ZERO_TOL = 1e-13;
+        double REL_ZERO_TOL = 0.0;
         unsigned int KZ_TOL = 1e3;
         double KB_TOL = 1e3;
         double KNU_TOL = 1e3;
@@ -86,6 +86,23 @@ namespace Freccia::Options {
                 Freccia::Env::read_env("FRECCIA_ARROW_RECOMPUTE_MAX_ITER", RECOMPUTE_MAX_ITER);
                 Freccia::Env::read_env("FRECCIA_ARROW_ABS_ZERO_TOL", ABS_ZERO_TOL);
                 Freccia::Env::read_env("FRECCIA_ARROW_REL_ZERO_TOL", REL_ZERO_TOL);
+            }
+        }
+    };
+
+    
+    struct DPRKEigenSolverOptions {
+        unsigned int MAX_RANK = 0;
+        unsigned int COMPRESSION_THRESHOLD = 500;
+        bool CHECK_ENV = true;
+
+        // Default constructor
+        DPRKEigenSolverOptions() {}
+        
+        void loadEnv() {
+            if(CHECK_ENV){
+                Freccia::Env::read_env("FRECCIA_DPRK_MAX_RANK", MAX_RANK);
+                Freccia::Env::read_env("FRECCIA_DPRK_COMPRESSION_THRESHOLD", COMPRESSION_THRESHOLD);
             }
         }
     };
