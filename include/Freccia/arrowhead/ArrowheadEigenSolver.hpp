@@ -16,24 +16,47 @@
 
 namespace Freccia::Arrowhead {
 
+/**
+ * Class ArrowheadEigenSolver
+ * 
+ * Computes all eigenvalues and eigenvectors of a symmetric Arrowhead matrix.
+ *
+ * This class computes all eigenvalues and eigenvectors of a symmetric Arrowhead matrix in O(n^2)
+ * as described in https://doi.org/10.1016/j.laa.2013.10.007. The algorithm applies a preprocessing
+ * step known as deflation to reduce the problem to a smaller irreducible one. The deflation step
+ * ensures that the elements of D are ordered decreasingly and unique, and that the elements of z
+ * are non-zero.
+ *
+ * @param [Eigen::ArrayXd] D diagonal of the Arrowhead matrix.
+ * @param [Eigen::ArrayXd] z shaft of the Arrowhead matrix.
+ * @param [double] alpha lower right-corner scalar tip of the Arrowhead shaft.
+ * @param [Freccia::Options::ArrowheadEigenSolverOptions] OPTIONS_IN options for the eigensolver.
+ */
+
 class ArrowheadEigenSolver {
+    // Type aliases
+    using Options = Freccia::Options::ArrowheadEigenSolverOptions;
+    
     public:
-        // Constructor for ArrayXd
-        ArrowheadEigenSolver(const Eigen::ArrayXd& D, 
-                        const Eigen::ArrayXd& z,
-                        double alpha,
-                        const Freccia::Options::ArrowheadEigenSolverOptions& OPTIONS_IN
-                                = Freccia::Options::ArrowheadEigenSolverOptions()
-                        ) 
+        // Class constructor.
+        // If instances of Eigen::VectorXd are passed, they are converted to Eigen::ArrayXd implicitly by Eigen.
+        ArrowheadEigenSolver(
+            const Eigen::ArrayXd& D, 
+            const Eigen::ArrayXd& z,
+            double alpha,
+            const Options& OPTIONS_IN = Options()
+            ) 
         :
         opt(OPTIONS_IN)
         {
             // Search environment variables if necessary
             opt.loadEnv();
-            // Call eigensolver after setting up tolerances
+            
+            // Call eigensolver
             eigh(D, z, alpha);
         }
 
+        // Getter functions
         // Return eigenvalues
         const Eigen::VectorXd& eigenvalues() const { return ew; }
         
@@ -42,39 +65,45 @@ class ArrowheadEigenSolver {
 
     private:
         // Solver options
-        Freccia::Options::ArrowheadEigenSolverOptions opt;
+        Options opt;
         
-        // Input parameters
-        int NS;
-        int NR;
+        // Problem size
+        unsigned int NS; // Size of the source Arrowhead matrix
+        unsigned int NR; // Size of the reduced Arrowhead matrix
 
-        ArrowheadMatrix<double> S; // Source DPR1 matrix
-        
-        ArrowheadMatrix<double> R; // Reduced DPR1 matrix
+        // Arrowhead matrices
+        ArrowheadMatrix<double> S; // Source Arrowhead matrix
+        ArrowheadMatrix<double> R; // Reduced Arrowhead matrix
+
+        // Store R.w^2 to avoid recomputing it at each iteration
         Eigen::ArrayXd Rwsqr; // Square of R.w
 
+        // Quad precision objects
+        // The computation of these objects is only necessary for ill-conditioned problems.
+        // Quad precision datatypes are slow and do not allow for vectorization, 
+        // so recomputing them at each iteration is avoided.
         bool isRecasted = false; // Flag to indicate if R has been recasted to __float128
-        ArrowheadMatrix<__float128> R_ld; // Reduced DPR1 matrix in __float128 datatype
+        ArrowheadMatrix<__float128> R_ld; // Reduced Arrowhead matrix in __float128 datatype
         Eigen::Array<__float128, Eigen::Dynamic, 1> Rwsqr_ld; // __float128 version of Rwsqr
 
-        // Sorting
+        // Permutation matrix used to sort D and z
         Permutation sort;
 
-        // Type 1 deflation
+        // Type 1 deflation object
         Freccia::Deflation::Type1 type1_deflation;
         
-        // Type 2 deflation
+        // Type 2 deflation object
         Freccia::Deflation::Type2 type2_deflation;
         
-        // Reduced solution
+        // Reduced solution -> this will be optimized and removed in the future
         Eigen::VectorXd DR;
         Eigen::MatrixXd QR;
 
-        // Output parameters
-        Eigen::VectorXd ew; // Eigenwerte
-        Eigen::MatrixXd ev; // Eigenvektoren
+        // Solution
+        Eigen::VectorXd ew; // Eigenwerte (eigenvalues)
+        Eigen::MatrixXd ev; // Eigenvektoren (eigenvectors)
 
-        // Functions
+        // Internal functions (see source files for documentation)
         void eigh(const Eigen::ArrayXd& D, const Eigen::ArrayXd& z, double alpha);
         void eigh_k(unsigned int k);
         void recastR();
@@ -87,5 +116,5 @@ class ArrowheadEigenSolver {
         double recomputeEigenvalue(unsigned int k);
 };
 
-} // namespace DPR1
+} // namespace Arrowhead
 #endif
